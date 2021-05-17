@@ -1,1 +1,1 @@
-data used to perform accuracy analysis
+LAPIG validation points for Guyanas 
