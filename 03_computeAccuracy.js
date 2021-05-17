@@ -46,14 +46,6 @@ var image = ee.ImageCollection(root)
 // load validation points
 var assetPoints = ee.FeatureCollection('users/vieiramesquita/MAPBIOMAS/mapbiomas_amazonia_50K_RAISG_plus_Brasil_v6');
 
-// classes from collection 3
-var options = {
-  'classes': [3, 11, 12, 21, 25, 33],
-  'classNames': ['Formación Forestal', 'Formación Natural No Forestal Inundable', 
-                 'Otra Formación Natural No Forestal', 'Mosaico de Agricultura y/o Pasto', 
-                 'Área sin Vegetación', 'Río, Lago u Océano']
-};
-
 // exclude this classes from LAPIG validation points (for col6)
 var excludedClasses = [
     "Sin consolidar",
