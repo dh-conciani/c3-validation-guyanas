@@ -1,7 +1,7 @@
 // accuracy analysis for Guianas - collection 3
 // write to: dhemerson.costa@ipam.org.br and joaquim.pereira@ipam.org.br
 
-// list with all classes avaliable to Guianas:
+// Classes avaliable to Guianas (LAPIG validation points):
 // Sin consolidar
 // No Observado
 // Río, Lago u Océano
