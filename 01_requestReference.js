@@ -18,6 +18,6 @@ Export.table.toDrive({
   collection: data, 
   description: 'valPoints_Guianas', 
   fileNamePrefix: 'valPoints_Guianas', 
-  folder: 'TEMP',
+  folder: 'DATA',
   fileFormat: 'SHP'
 });
