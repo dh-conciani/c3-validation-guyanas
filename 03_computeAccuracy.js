@@ -13,38 +13,42 @@
 // Manglar
 // Error
 
+/////////////////////// ~~~~ user parameters ~~~~ ///////////////////////
 // define root path
 var root = 'projects/mapbiomas-raisg/COLECCION3/clasificacion-ft';
 
 // define version to filter data
 var version = 9;
 
-// define classification regions 
+// define label to identify this dataset
+var label = 'validation_c3_v' + version; 
+
+//////////// ~~~~ end of user parameters - do not change from this line ~~~~ /////// 
+
+// load LAPIG validation points
+var assetPoints = ee.FeatureCollection('users/vieiramesquita/MAPBIOMAS/mapbiomas_amazonia_50K_RAISG_plus_Brasil_v6');
+
+// load collection 3 classification (pre-integration)
+var image = ee.ImageCollection(root)
+            .filterMetadata('version', 'equals', version)
+            .min();
+            
+// load classification regions (vector)
 var regions_vec = ee.FeatureCollection([]);
 
+// define regions to be processed
 var regioes = ['50201', '50202', '50203', '50204', '50205', '50903', '50904',
                '60208', '60209',
                '80206', '80207'
                ];
-               
+
+// define years to be processed 
 var anos = [ 
             1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994,
             1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
             2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,
             2015, 2016, 2017, 2018
             ];
-
-// define country boundaries (three guyanas)
-var guyanas = ee.FeatureCollection([]);
-
-// mosaic images 
-var image = ee.ImageCollection(root)
-            .filterMetadata('version', 'equals', version)
-            //.filterMetadata('pais', 'equals', 'GUIANA_FRANCESA')
-            .min();
-
-// load validation points
-var assetPoints = ee.FeatureCollection('users/vieiramesquita/MAPBIOMAS/mapbiomas_amazonia_50K_RAISG_plus_Brasil_v6');
 
 // exclude this classes from LAPIG validation points (for col6)
 var excludedClasses = [
