@@ -1,19 +1,6 @@
 // accuracy analysis for Guianas - collection 3
 // write to: dhemerson.costa@ipam.org.br and joaquim.pereira@ipam.org.br
 
-// list with all classes avaliable to Guianas:
-// Sin consolidar
-// No Observado
-// Não Observado
-// Río, Lago u Océano
-// Formación Forestal
-// Mosaico de Agricultura y/o Pasto
-// Formación Natural No Forestal Inundable
-// Área sin Vegetación
-// Otra Formación Natural No Forestal
-// Manglar
-// Error
-
 /////////////////////// ~~~~ user parameters ~~~~ ///////////////////////
 // define root path
 var root = 'projects/mapbiomas-raisg/COLECCION3/clasificacion-ft';
@@ -32,7 +19,7 @@ var assetPoints = ee.FeatureCollection('users/vieiramesquita/MAPBIOMAS/mapbiomas
 // load classification regions
 var raster_regions = ee.Image('projects/mapbiomas-raisg/DATOS_AUXILIARES/RASTERS/clasificacion-regiones-3');
 
-// extract region ID and paste into points
+// extract region ID and paste as metadata into points
 var assetPoints = raster_regions.reduceRegions({
   collection: assetPoints,
   reducer: ee.Reducer.mean(),
@@ -72,6 +59,7 @@ var classes = {
   "Formación Forestal": 3,
   "Formación Natural No Forestal Inundable": 11,
   "Otra Formación Natural No Forestal": 12,
+  "Outra Formação Natural Não Florestal": 12,
   "Mosaico de Agricultura y/o Pasto": 21,
   "Área sin Vegetación": 25,
   "Río, Lago u Océano": 33,
