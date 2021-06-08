@@ -13,10 +13,10 @@ library (tools)
 path <- './VALIDATION_CSV_C3/'
 
 ## color palette
-palette <- c('darkgreen', 'gray80', 'skyblue4', 'orangered',
+palette <- c('black', 'gray80', 'skyblue4', 'orangered',
              'red', 'purple','black', 'blue', 'pink')
 
-## define type of plot (1= average, 2= by region)
+## define type of plot (1= average, 2= by region, 3= average by country)
 typePlot <- 1
 
 ### DONT CHANGE AFTER THIS LINE #######
@@ -76,8 +76,40 @@ calcAverage <- function (x) {
   return (x)
 }
 
+## calc average by region 
+calcAverage_byCountry <- function(x) {
+  french <- subset(x, Region == '60208' | Region == '60209')
+  suriname <- subset(x, Region == '80206' | Region == '80207')
+  
+  guyana <- subset(x, Region == '50201' | Region == '50202' |
+                      Region == '50203' | Region == '50204' |
+                      Region == '50205' | Region == '50903' |
+                      Region == '50904')
+  
+  
+  ## calc average
+  french <- aggregate(french$Accuracy, by=list(french$Level, french$Year), FUN= "mean")
+  french$Country <- "French Guiana"
+  suriname <- aggregate(suriname$Accuracy, by=list(suriname$Level, suriname$Year), FUN= "mean")
+  suriname$Country <- "Suriname"
+  guyana <- aggregate(guyana$Accuracy, by=list(guyana$Level, guyana$Year), FUN= "mean")
+  guyana$Country <- "Guyana"
+  
+  ## bind
+  temp <- rbind (french, suriname, guyana)
+  
+  ## rename cols
+  colnames(temp)[1] <- "Level"
+  colnames(temp)[2] <- "Year"
+  colnames(temp)[3] <- "Accuracy"
+  
+  return (temp)
+}
+
 ## import data
 acc_data <- calcAverage(formatData(importTables(x= path)))
+acc_country <- calcAverage_byCountry(formatData(importTables(x= path)))
+
 
 ## plot all filters by region
 
@@ -95,13 +127,22 @@ if (typePlot == 1) {
 if (typePlot == 2) {
   ggplot (acc_data, aes(x=as.numeric(Year), y= Accuracy, colour=Level)) +
     facet_wrap(~Region) +
+    geom_point(alpha=0.6) + 
     geom_line(size=1, alpha=0.7) +
     scale_colour_manual(values=palette) +
     #geom_point(alpha=0.5, aes(pch=Level)) +
     theme_bw() +
     xlab("Year")
 }
+
+if (typePlot == 3) {
+  ggplot (acc_country, aes(x=as.numeric(Year), y= Accuracy, colour=Level)) +
+    facet_wrap(~Country) +
+    geom_point(alpha=0.6) + 
+    geom_line(size=1, alpha=0.7) +
+    scale_colour_manual(values=palette) +
+    theme_bw() +
+    xlab("Year")
+}
  
-## calc mean
-#a <- subset(acc_data, Region == "Average" & Year == "2018")
-#aggregate(a$Accuracy, by=list(a$Level), FUN="mean")
+
