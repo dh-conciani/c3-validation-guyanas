@@ -10,11 +10,10 @@ library (tools)
 
 ### USER PARAMETERS #####
 ## CSV's path
-path <- './VALIDATION_CSV_C3/'
+path <- './CSV/'
 
 ## color palette
-palette <- c('black', 'gray80', 'skyblue4', 'orangered',
-             'red', 'purple','black', 'blue', 'pink')
+palette <- c('purple', 'green4')
 
 ## define type of plot (1= average, 2= by region, 3= average by country)
 typePlot <- 1
@@ -40,7 +39,10 @@ importTables <- function (x) {
     tab$Level <- file_path_sans_ext(files[i])
     recipe <- rbind(recipe, tab)
   }
-  
+  ## replace 0 by NA
+  recipe$Accuracy <- as.numeric(recipe$Accuracy)
+  recipe[recipe == 0] <- NA
+  str(recipe)
   return(recipe)
 }
 
@@ -67,7 +69,7 @@ formatData <- function(x) {
 ## calc average
 calcAverage <- function (x) {
   #temp <- subset(x, Level != "COL5")
-  temp <- aggregate(x$Accuracy, by=list(x$Level, x$Year), FUN= "mean")
+  temp <- aggregate(x$Accuracy, by=list(x$Level, x$Year), FUN= "mean", na.rm= TRUE, na.action= NULL)
   temp$Region <- as.factor("Average")
   colnames(temp)[1] <- "Level"
   colnames(temp)[2] <- "Year"
@@ -86,13 +88,12 @@ calcAverage_byCountry <- function(x) {
                       Region == '50205' | Region == '50903' |
                       Region == '50904')
   
-  
   ## calc average
-  french <- aggregate(french$Accuracy, by=list(french$Level, french$Year), FUN= "mean")
+  french <- aggregate(french$Accuracy, by=list(french$Level, french$Year), FUN= "mean",na.rm= TRUE, na.action= NULL)
   french$Country <- "French Guiana"
-  suriname <- aggregate(suriname$Accuracy, by=list(suriname$Level, suriname$Year), FUN= "mean")
+  suriname <- aggregate(suriname$Accuracy, by=list(suriname$Level, suriname$Year), FUN= "mean", na.rm= TRUE, na.action= NULL)
   suriname$Country <- "Suriname"
-  guyana <- aggregate(guyana$Accuracy, by=list(guyana$Level, guyana$Year), FUN= "mean")
+  guyana <- aggregate(guyana$Accuracy, by=list(guyana$Level, guyana$Year), FUN= "mean", na.rm= TRUE, na.action= NULL)
   guyana$Country <- "Guyana"
   
   ## bind
@@ -113,36 +114,51 @@ acc_country <- calcAverage_byCountry(formatData(importTables(x= path)))
 
 ## plot all filters by region
 
-if (typePlot == 1) {
+#if (typePlot == 1) {
   ## Only Average of all regions
-  ggplot (subset(acc_data, Region == "Average"), aes(x=as.numeric(Year), y= Accuracy, colour=Level)) +
+  ggplot (subset(acc_data, Region == "Average"), aes(x=as.factor(Year), y= Accuracy, colour=Level)) +
     facet_wrap(~Region) +
-    geom_point(alpha=0.6) + 
-    geom_line(size=1, alpha=0.7) +
+    geom_line(aes(group= Level), size=1, alpha=0.7) +
     scale_colour_manual(values=palette) +
-    #geom_point(alpha=0.5, aes(pch=Level)) +
+    geom_point(alpha=0.5, aes(pch=Level)) +
     theme_bw() +
-    xlab("Year") 
-} 
-if (typePlot == 2) {
-  ggplot (acc_data, aes(x=as.numeric(Year), y= Accuracy, colour=Level)) +
-    facet_wrap(~Region) +
-    geom_point(alpha=0.6) + 
-    geom_line(size=1, alpha=0.7) +
-    scale_colour_manual(values=palette) +
-    #geom_point(alpha=0.5, aes(pch=Level)) +
-    theme_bw() +
-    xlab("Year")
-}
-
-if (typePlot == 3) {
-  ggplot (acc_country, aes(x=as.numeric(Year), y= Accuracy, colour=Level)) +
-    facet_wrap(~Country) +
-    geom_point(alpha=0.6) + 
-    geom_line(size=1, alpha=0.7) +
-    scale_colour_manual(values=palette) +
-    theme_bw() +
-    xlab("Year")
-}
+    theme(axis.text.x = element_text(angle = 75, vjust = 0.5, hjust=0.5)) +
+    scale_x_discrete(breaks=c('1985', '1987', '1989', '1991', '1993', '1995', '1997', '1999',
+                              '2001', '2003', '2005', '2007', '2009', '2011', '2013', '2015',
+                              '2018')) + xlab("Year") 
  
+#if (typePlot == 2) {
+  ggplot (acc_data, aes(x=as.factor(Year), y= Accuracy, colour=Level)) +
+    facet_wrap(~Region) +
+    geom_line(aes(group= Level), size=1, alpha=0.7) +
+    scale_colour_manual(values=palette) +
+    geom_point(alpha=0.5, aes(pch=Level)) +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 75, vjust = 0.5, hjust=0.5)) +
+    scale_x_discrete(breaks=c('1985', '1987', '1989', '1991', '1993', '1995', '1997', '1999',
+                              '2001', '2003', '2005', '2007', '2009', '2011', '2013', '2015',
+                              '2018')) + xlab("Year") 
+#}
 
+#if (typePlot == 3) {
+  ggplot (acc_country, aes(x=as.factor(Year), y= Accuracy, colour=Level)) +
+    facet_wrap(~Country) +
+    geom_line(aes(group= Level), size=1, alpha=0.7) +
+    scale_colour_manual(values=palette) +
+    geom_point(alpha=0.5, aes(pch=Level)) +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 75, vjust = 0.5, hjust=0.5)) +
+    scale_x_discrete(breaks=c('1985', '1987', '1989', '1991', '1993', '1995', '1997', '1999',
+                              '2001', '2003', '2005', '2007', '2009', '2011', '2013', '2015',
+                              '2018')) + xlab("Year") 
+#}
+ 
+## compute mean by region
+aggregate(acc_data$Accuracy, by=list(acc_data$Region, acc_data$Level), FUN= "mean", na.rm= TRUE, na.action= NULL)
+
+## compute mean by country
+aggregate(acc_country$Accuracy, by=list(acc_country$Country, acc_country$Level), FUN= "mean", na.rm= TRUE, na.action= NULL)
+
+## compute mean by collection
+average <- subset(acc_data, Region == "Average")
+aggregate(average$Accuracy, by=list(average$Level), FUN= "mean", na.rm= TRUE, na.action= NULL)
